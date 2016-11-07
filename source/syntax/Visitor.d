@@ -105,7 +105,10 @@ class Visitor {
 	}
 	return new Label (num.str, insts);
     }
-    
+
+    /**
+     move := 'move' expression ',' expression
+     */
     private Move visitMove () {
 	auto left = visitExpression ();
 	auto word = this._lex.next ();
@@ -113,11 +116,17 @@ class Visitor {
 	auto right = visitExpression ();
 	return new Move (left, right);
     }
-    
+
+    /**
+     goto := 'goto' Identifiant
+     */
     private Goto visitGoto () {
 	return new Goto (visitIdentifiant ().str);
     }
 
+    /**
+     reg := '$''(' int ':' int ')'
+     */
     private Register visitRegister () {
 	auto word = this._lex.next ();
 	if (word != Tokens.DOLLAR) throw new SyntaxError (word, [Tokens.DOLLAR.descr]);
@@ -131,7 +140,10 @@ class Visitor {
 	if (word != Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
 	return new Register (to!ulong (id), to!int (size));
     }
-    
+
+    /**
+     operator := Identifiant expression ',' expression ',' expression
+     */
     private Operator visitOperator (Word type) {
 	auto left = visitExpression ();
 	auto word = this._lex.next ();
@@ -203,7 +215,10 @@ class Visitor {
 	}
 	return true;
     }
-    
+
+    /**
+     expression := regread | Byte | Word | DWord | QWord | SPrec | DPrec
+     */
     private Expression visitExpression () {
 	string _int;       
 	if (getInt (_int)) return visitRegRead (_int);
@@ -219,6 +234,9 @@ class Visitor {
 	}
     }
 
+    /**
+     Word := 'W' '[' int ']'
+     */
     private Expression visitWord () {
 	auto word = this._lex.next ();
 	if (word != Tokens.LCRO) throw new SyntaxError (word, [Tokens.LCRO.descr]);
@@ -274,6 +292,9 @@ class Visitor {
     }           
     
 
+    /**
+     regread := int '(' reg ')' ':' int
+     */
     private RegRead visitRegRead (string begin) {
 	auto word = this._lex.next ();
 	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
