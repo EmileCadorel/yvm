@@ -1,5 +1,5 @@
 module code.Goto;
-import code.Instruction;
+import code.Frame, code.Instruction;
 
 class Goto : Instruction {
 
@@ -8,6 +8,9 @@ class Goto : Instruction {
     this (string id) {
 	this._id = id;
     }
-    
+
+    override void execute (Frame frame) {
+	
+    }
 
 }

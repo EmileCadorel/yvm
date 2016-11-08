@@ -1,5 +1,5 @@
 module code.Move;
-import code.Expression, code.Instruction;
+import code.Frame, code.Expression, code.Instruction;
 
 class Move : Instruction {
 
@@ -10,5 +10,8 @@ class Move : Instruction {
 	this._left = left;
 	this._right = right;
     }
-    
+
+    override void execute (Frame frame) {
+
+    }
 }

@@ -6,9 +6,13 @@ abstract class Const: Expression {}
 class ConstByte : Const {
 
     private byte _b;
-    
+
     this (char b) {
 	this._b = b;
+    }
+
+    override int size () {
+	return 1;
     }
 }
 
@@ -18,6 +22,10 @@ class ConstWord : Const {
     this (short s) {
 	this._s = s;
     }
+
+    override int size () {
+	return 2;
+    }
 }
 
 class ConstDWord : Const {
@@ -25,6 +33,10 @@ class ConstDWord : Const {
 
     this (int i) {
 	this._i = i;
+    }
+
+    override int size () {
+	return 4;
     }
 }
 
@@ -34,6 +46,10 @@ class ConstQWord : Const {
     this (long l) {
 	this._l = l;
     }
+
+    override int size () {
+	return 8;
+    }
 }
 
 class ConstSPrec : Const {
@@ -41,7 +57,11 @@ class ConstSPrec : Const {
 
     this (float f) {
 	this._f = f;
-    }   
+    }
+
+    override int size () {
+	return -4;
+    }
 }
 
 class ConstDPrec : Const {
@@ -49,5 +69,9 @@ class ConstDPrec : Const {
 
     this (double d) {
 	this._d = d;
-    }    
+    }
+
+    override int size () {
+	return -8;
+    }
 }

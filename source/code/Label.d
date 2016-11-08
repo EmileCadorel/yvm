@@ -11,5 +11,13 @@ class Label {
 	this._id = id;
 	this._insts = insts;
     }
-    
+
+    string id () {
+	return this._id;
+    }
+
+    Array!Instruction insts () {
+	return this._insts;
+    }
+
 }
