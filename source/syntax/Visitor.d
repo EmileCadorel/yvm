@@ -98,6 +98,12 @@ class Visitor {
 		insts.insertBack (visitGoto ());
 	    else if (word == Keys.MOVE)
 		insts.insertBack (visitMove ());
+	    else if (word == Keys.CALL)
+		insts.insertBack (visitCall ());
+	    else if (word == Keys.SYSTEM)
+		insts.insertBack (visitSystem ());
+	    else if (word == Keys.IF)
+		insts.insertBack (visitIf ());
 	    else {
 		this._lex.rewind ();
 		break;
@@ -106,6 +112,58 @@ class Visitor {
 	return new Label (num.str, insts);
     }
 
+    /**
+     system := 'system' Identifiant '[' (expression (',' expression)*) ? ']'
+     */
+    private System visitSystem () {
+	auto name = visitIdentifiant ();
+	auto word = this._lex.next ();
+	if (word != Tokens.LCRO) throw new SyntaxError (word, [Tokens.LCRO.descr]);
+	word = this._lex.next ();
+	Array!Expression expr;
+	if (word != Tokens.RCRO) {
+	    this._lex.rewind ();
+	    while (true) {
+		expr.insertBack (visitExpression ());
+		word = this._lex.next ();
+		if (word == Tokens.RCRO) break;
+		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.RCRO.descr, Tokens.COMA.descr]);
+	    }
+	}
+	return new System (name.str, expr);
+    }
+
+    /**
+     call := 'call' Identifiant '[' (expression (',' expression)*) ? ']'
+     */
+    private Call visitCall () {
+	auto name = visitIdentifiant ();
+	auto word = this._lex.next ();
+	if (word != Tokens.LCRO) throw new SyntaxError (word, [Tokens.LCRO.descr]);
+	word = this._lex.next ();
+	Array!Expression expr;
+	if (word != Tokens.RCRO) {
+	    this._lex.rewind ();
+	    while (true) {
+		expr.insertBack (visitExpression ());
+		word = this._lex.next ();
+		if (word == Tokens.RCRO) break;
+		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.RCRO.descr, Tokens.COMA.descr]);
+	    }
+	}
+	return new Call (name.str, expr);
+    }
+
+    /**
+     if := 'if' expression Identifiant
+     */
+    private If visitIf () {
+	auto expr = visitExpression ();
+	auto lbl = visitIdentifiant ();
+	return new If (expr, lbl.str);
+    }    
+    
+    
     /**
      move := 'move' expression ',' expression
      */

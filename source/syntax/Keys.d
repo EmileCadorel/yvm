@@ -14,5 +14,8 @@ enum Keys : Token {
     GOTO = Token ("goto", 8),
     LBL = Token ("lbl", 9),
     SP = Token ("SP", 10),
-    DP = Token ("DP", 11)
+    DP = Token ("DP", 11),
+    CALL = Token ("call", 12),
+    IF = Token ("if", 13),
+    SYSTEM = Token ("system", 14)
 }
