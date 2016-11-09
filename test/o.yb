@@ -6,8 +6,11 @@ lbl [l1]:
 
 #main() {
 lbl[l2] :
-	call	print [], 0($(1:4)):4
+	
+	move	DW[10], 0($(1:4)):4
+	minus	DW[10], 0($(1:4)):4, 0($(1:4)):4
 	system	print_i [0($(1:4)):4]
+	system	print_c [B[10]]
 	
 lbl[l3] :
 }

@@ -18,7 +18,7 @@ lbl[l3]:
 
 #main(): $(1:4) {
 lbl[l2] :
-	call fibo [DW[8]], 0($(2:4)):4	
+	call fibo [DW[11]], 0($(2:4)):4	
 	system print_i [0($(2:4)):4]
 	
 lbl[l3] :
