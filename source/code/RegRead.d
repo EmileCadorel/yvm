@@ -11,7 +11,7 @@ class RegRead : Expression {
     private int _size;
     private Expression _expr;
     private Register _reg;
-    
+
     this (ulong begin, int size, Expression expr, Register reg) {
 	this._begin = begin;
 	this._size = size;
@@ -21,7 +21,12 @@ class RegRead : Expression {
 
     override byte* get () {
 	byte * res = new byte[this._size].ptr;
-	byte * ptr = Table.instance.get (this._reg);
+	byte * ptr;
+	if (this._reg !is null) {
+	    ptr = Table.instance.get (this._reg);
+	} else {
+	    ptr = this._expr.get;
+	}
 	for (int i = 0; i < this._size; i++) {
 	    res[i] = ptr[i+this._begin];
 	}
