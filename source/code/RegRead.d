@@ -19,18 +19,16 @@ class RegRead : Expression {
 	this._reg = reg;
     }
 
-    override byte* get () {
-	byte * res = new byte[this._size].ptr;
+    override byte* get () {	
 	byte * ptr;
+
 	if (this._reg !is null) {
 	    ptr = Table.instance.get (this._reg);
 	} else {
 	    ptr = this._expr.get;
 	}
-	for (int i = 0; i < this._size; i++) {
-	    res[i] = ptr[i+this._begin];
-	}
-	return res;
+		
+	return ptr + this._begin;
     }
 
     override int size () {

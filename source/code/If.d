@@ -1,5 +1,6 @@
 module code.If;
 import code.Instruction, code.Expression;
+import code.Frame, std.math;
 
 class If : Instruction {
 

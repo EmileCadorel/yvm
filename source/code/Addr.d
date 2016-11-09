@@ -1,5 +1,6 @@
 module code.Addr;
 import code.Expression, code.Instruction, code.Register;
+import code.Frame;
 
 class Addr : Instruction {
 
@@ -11,5 +12,7 @@ class Addr : Instruction {
 	this._expr = expr;
     }
 
+    override void execute (Frame) {}
 
+    
 }

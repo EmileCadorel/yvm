@@ -1,5 +1,5 @@
 module mem.FrameTable;
-import std.container;
+import std.container, code.Frame;
 import utils.Singleton;
 
 class FrameTable {

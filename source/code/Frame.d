@@ -1,7 +1,7 @@
 module code.Frame;
 import code.Instruction, code.Label, code.Register;
 import mem.Table;
-import std.container;
+import std.container, std.stdio;
 
 class Frame {
 
@@ -25,15 +25,19 @@ class Frame {
 	Table.instance.enterFrame ();
 
 	while (this._label_ids.front < this._labels.length) {
-	    Label current_label = this._labels[this._label_ids.front];
-	    while (this._inst_ids.front < current_label.insts.length) {
+	    this._inst_ids.front = 0;
+	    while (this._inst_ids.front <
+		   this._labels[this._label_ids.front].insts.length) {
+		Label current_label = this._labels[this._label_ids.front];
 		current_label.insts[this._inst_ids.front].execute (this);
 		this._inst_ids.front () += 1;
 	    }
 	    this._label_ids.front () +=1;
 	}
-
-	byte * return_value = Table.instance.get (this._return);
+	byte * return_value = null;
+	if (this._return !is null) {
+	    return_value = Table.instance.get (this._return);
+	}
 
 	Table.instance.exitFrame ();
 	this._label_ids.removeFront;
@@ -53,14 +57,21 @@ class Frame {
 	}
 
 	while (this._label_ids.front < this._labels.length) {
-	    Label current_label = this._labels[this._label_ids.front];
-	    while (this._inst_ids.front < current_label.insts.length) {
+	    this._inst_ids.front = 0;
+	    while (this._inst_ids.front <
+		   this._labels[this._label_ids.front].insts.length) {
+		Label current_label = this._labels[this._label_ids.front];
 		current_label.insts[this._inst_ids.front].execute (this);
 		this._inst_ids.front () += 1;
 	    }
+	    this._label_ids.front () += 1;
 	}
 
-	byte * return_value = Table.instance.get (this._return);
+	byte * return_value = null;
+	if (this._return !is null) {
+	    return_value = Table.instance.get (this._return);
+	}
+
 	Table.instance.exitFrame ();
 	this._label_ids.removeFront;
 	this._inst_ids.removeFront;
