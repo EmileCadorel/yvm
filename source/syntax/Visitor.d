@@ -16,7 +16,7 @@ class Visitor {
 					  Tokens.RRETOUR,
 					  Tokens.TAB],
 			       []);
-	this._operators = [Keys.STAR, Keys.PLUS, Keys.MINUS];
+	this._operators = [Keys.STAR, Keys.PLUS, Keys.MINUS, Keys.DIV, Keys.INF];
     }
 
     /**
@@ -130,6 +130,12 @@ class Visitor {
 		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.RCRO.descr, Tokens.COMA.descr]);
 	    }
 	}
+	word = this._lex.next ();
+	if (word == Tokens.COMA) {
+	    auto reg = visitExpression ();
+	    return new System (name.str, expr, reg);
+	} else this._lex.rewind ();
+	
 	return new System (name.str, expr);
     }
 
@@ -151,6 +157,12 @@ class Visitor {
 		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.RCRO.descr, Tokens.COMA.descr]);
 	    }
 	}
+	word = this._lex.next ();
+	if (word == Tokens.COMA) {
+	    auto reg = visitExpression ();
+	    return new Call (name.str, expr, reg);
+	} else this._lex.rewind ();
+	
 	return new Call (name.str, expr);
     }
 

@@ -17,5 +17,7 @@ enum Keys : Token {
     DP = Token ("DP", 11),
     CALL = Token ("call", 12),
     IF = Token ("if", 13),
-    SYSTEM = Token ("system", 14)
+    SYSTEM = Token ("system", 14),
+    INF = Token ("inf", 15),
+    DIV = Token ("div", 16)
 }
