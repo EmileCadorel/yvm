@@ -19,36 +19,57 @@ class Frame {
 	this._return = ret;
     }
 
-    /*
-      va remplir la table de registres
-      executer le premier label
-     */
-    Register execute (string[] args) {
-	// foreach (reg ; this._params) {
-	//     auto val = Table.instance.get (reg);
-	// }
-
+    byte* execute (string[] args) {
 	this._label_ids.insertFront (0);
 	this._inst_ids.insertFront (0);
+	Table.instance.enterFrame ();
+
 	while (this._label_ids.front < this._labels.length) {
 	    Label current_label = this._labels[this._label_ids.front];
 	    while (this._inst_ids.front < current_label.insts.length) {
 		current_label.insts[this._inst_ids.front].execute (this);
+		this._inst_ids.front () += 1;
 	    }
+	    this._label_ids.front () +=1;
 	}
+
+	byte * return_value = Table.instance.get (this._return);
+
+	Table.instance.exitFrame ();
 	this._label_ids.removeFront;
 	this._inst_ids.removeFront;
 
-	return null;
+
+	return return_value;
     }
 
-    Register call (Array!(byte*) params) {
+    byte* call (Array!(byte*) params) {
 
-	return null;
+	this._label_ids.insertFront (0);
+	this._inst_ids.insertFront (0);
+	Table.instance.enterFrame ();
+	for (int i = 0; i < params.length; i++) {
+	    Table.instance.add (this._params[i], params[i]);
+	}
+
+	while (this._label_ids.front < this._labels.length) {
+	    Label current_label = this._labels[this._label_ids.front];
+	    while (this._inst_ids.front < current_label.insts.length) {
+		current_label.insts[this._inst_ids.front].execute (this);
+		this._inst_ids.front () += 1;
+	    }
+	}
+
+	byte * return_value = Table.instance.get (this._return);
+	Table.instance.exitFrame ();
+	this._label_ids.removeFront;
+	this._inst_ids.removeFront;
+
+	return return_value;
     }
 
     void jump (string label_id) {
-	this._inst_ids.front = 0;
+	this._inst_ids.front = -1;
 	foreach (it; 0 .. this._labels.length) {
 	    if (this._labels[it].id == label_id) {
 		this._label_ids.front = it;

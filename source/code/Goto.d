@@ -10,7 +10,7 @@ class Goto : Instruction {
     }
 
     override void execute (Frame frame) {
-	
+	frame.jump (this._id);
     }
 
 }

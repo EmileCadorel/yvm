@@ -14,6 +14,10 @@ class ConstByte : Const {
     override int size () {
 	return 1;
     }
+
+    override byte * get () {
+	return new byte (this._b);
+    }
 }
 
 class ConstWord : Const {
@@ -26,6 +30,12 @@ class ConstWord : Const {
     override int size () {
 	return 2;
     }
+
+    override byte * get () {
+	short * val = new short (this._s);
+	return cast (byte*)val;
+    }
+
 }
 
 class ConstDWord : Const {
@@ -37,6 +47,11 @@ class ConstDWord : Const {
 
     override int size () {
 	return 4;
+    }
+
+    override byte * get () {
+	int * val = new int (this._i);
+	return cast(byte*)val;
     }
 }
 
@@ -50,6 +65,12 @@ class ConstQWord : Const {
     override int size () {
 	return 8;
     }
+
+    override byte * get () {
+	long * val = new long (this._l);
+	return cast (byte*)val;
+    }
+
 }
 
 class ConstSPrec : Const {
@@ -62,6 +83,12 @@ class ConstSPrec : Const {
     override int size () {
 	return -4;
     }
+
+    override byte * get () {
+	float * val = new float (this._f);
+	return cast (byte*)val;
+    }
+
 }
 
 class ConstDPrec : Const {
@@ -74,4 +101,10 @@ class ConstDPrec : Const {
     override int size () {
 	return -8;
     }
+
+    override byte * get () {
+	double * val = new double (this._d);
+	return cast(byte*)val;
+    }
+
 }

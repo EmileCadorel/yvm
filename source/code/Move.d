@@ -12,6 +12,6 @@ class Move : Instruction {
     }
 
     override void execute (Frame frame) {
-
+	*(this._right.get) = *(this._right.get);
     }
 }
