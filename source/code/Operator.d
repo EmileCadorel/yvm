@@ -16,6 +16,6 @@ class Operator : Instruction {
     }
 
     override void execute (Frame frame) {
-
+	
     }
 }
