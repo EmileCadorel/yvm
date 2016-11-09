@@ -104,6 +104,8 @@ class Visitor {
 		insts.insertBack (visitSystem ());
 	    else if (word == Keys.IF)
 		insts.insertBack (visitIf ());
+	    else if (word == Keys.ADDR)
+		insts.insertBack (visitAddr ());
 	    else {
 		this._lex.rewind ();
 		break;
@@ -112,6 +114,18 @@ class Visitor {
 	return new Label (num.str, insts);
     }
 
+    /**
+     addr := 'addr' register ',' expression
+     */
+    private Addr visitAddr () {
+	auto reg = visitRegister ();
+	auto word = this._lex.next ();
+	if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr]);
+	auto expr = visitExpression ();
+	return new Addr (reg, expr);
+    }
+
+    
     /**
      system := 'system' Identifiant '[' (expression (',' expression)*) ? ']'
      */
@@ -368,13 +382,23 @@ class Visitor {
     private RegRead visitRegRead (string begin) {
 	auto word = this._lex.next ();
 	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
-	auto reg = visitRegister ();
+	word = this._lex.next ();
+
+	Register reg; Expression expr;
+	if (word == Tokens.DOLLAR) {
+	    this._lex.rewind ();
+	    reg = visitRegister ();
+	} else {
+	    this._lex.rewind ();
+	    expr = visitExpression ();
+	}
+	
 	word = this._lex.next ();
 	if (word != Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
 	word = this._lex.next ();
 	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
 	auto end = visitInt ();
-	return new RegRead (to!ulong (begin), to!int(end), reg);
+	return new RegRead (to!ulong (begin), to!int(end), expr, reg);
     }
     
     /**

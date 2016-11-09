@@ -19,5 +19,6 @@ enum Tokens : Token {
     RRETOUR = Token ("\r", 12),
     TAB = Token ("\t", 13),
     MINUS = Token ("-", 14),
-    DOT = Token (".", 15)
+    DOT = Token (".", 15),
+    STAR = Token ("*", 16)
 }

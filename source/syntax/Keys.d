@@ -19,5 +19,6 @@ enum Keys : Token {
     IF = Token ("if", 13),
     SYSTEM = Token ("system", 14),
     INF = Token ("inf", 15),
-    DIV = Token ("div", 16)
+    DIV = Token ("div", 16),
+    ADDR = Token ("addr", 17)
 }
