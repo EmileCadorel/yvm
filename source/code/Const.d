@@ -16,7 +16,7 @@ class ConstByte : Const {
     }
 
     override byte * get () {
-	return new byte (this._b);
+	return &this._b;
     }
 }
 
@@ -32,8 +32,7 @@ class ConstWord : Const {
     }
 
     override byte * get () {
-	short * val = new short (this._s);
-	return cast (byte*)val;
+	return cast (byte*)&this._s;
     }
 
 }
@@ -50,8 +49,7 @@ class ConstDWord : Const {
     }
 
     override byte * get () {
-	int * val = new int (this._i);
-	return cast(byte*)val;
+	return cast(byte*)&this._i;
     }
 }
 
@@ -67,8 +65,7 @@ class ConstQWord : Const {
     }
 
     override byte * get () {
-	long * val = new long (this._l);
-	return cast (byte*)val;
+	return cast (byte*)&this._l;
     }
 
 }
@@ -85,8 +82,7 @@ class ConstSPrec : Const {
     }
 
     override byte * get () {
-	float * val = new float (this._f);
-	return cast (byte*)val;
+	return cast (byte*)&this._f;
     }
 
 }
@@ -103,8 +99,7 @@ class ConstDPrec : Const {
     }
 
     override byte * get () {
-	double * val = new double (this._d);
-	return cast(byte*)val;
+	return cast(byte*)&this._d;
     }
 
 }

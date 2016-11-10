@@ -84,7 +84,7 @@ class Visitor {
 	if (word != Keys.LBL) throw new SyntaxError (word, [Keys.LBL.descr]);
 	word = this._lex.next ();
 	if (word != Tokens.LCRO) throw new SyntaxError (word, [Tokens.LCRO.descr]);
-	auto num = visitIdentifiant ();
+	auto num = to!ulong (visitInt ());
 	word = this._lex.next ();
 	if (word != Tokens.RCRO) throw new SyntaxError (word, [Tokens.RCRO.descr]);
 	word = this._lex.next ();
@@ -111,7 +111,7 @@ class Visitor {
 		break;
 	    }
 	}
-	return new Label (num.str, insts);
+	return new Label (num, insts);
     }
 
     /**
@@ -185,8 +185,8 @@ class Visitor {
      */
     private If visitIf () {
 	auto expr = visitExpression ();
-	auto lbl = visitIdentifiant ();
-	return new If (expr, lbl.str);
+	auto lbl = to!ulong (visitInt());
+	return new If (expr, lbl);
     }    
     
     
@@ -205,7 +205,7 @@ class Visitor {
      goto := 'goto' Identifiant
      */
     private Goto visitGoto () {
-	return new Goto (visitIdentifiant ().str);
+	return new Goto (to!ulong (visitInt ()));
     }
 
     /**
@@ -228,7 +228,7 @@ class Visitor {
     /**
      operator := Identifiant expression ',' expression ',' expression
      */
-    private Operator visitOperator (Word type) {
+    private Operator visitOperator (Word type) {	
 	auto left = visitExpression ();
 	auto word = this._lex.next ();
 	if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr]);
@@ -236,7 +236,7 @@ class Visitor {
 	word = this._lex.next ();
 	if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr]);
 	auto res = visitExpression ();
-	return new Operator (type.str, left, right, res);
+	return new Operator (toOP (type.str), left, right, res);
     }    
 
     private string visitInt () {

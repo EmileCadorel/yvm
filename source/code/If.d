@@ -5,9 +5,9 @@ import code.Frame, std.math;
 class If : Instruction {
 
     private Expression _test;
-    private string _where;
+    private ulong _where;
 
-    this (Expression test, string where) {
+    this (Expression test, ulong where) {
 	this._where = where;
 	this._test = test;
     }
@@ -17,24 +17,12 @@ class If : Instruction {
 	byte * data = this._test.get;
 	bool res;
 	switch (size) {
-	case 1:
-	    res = *(data)==0;
-	    break;
-	case 2:
-	    res = *(cast(short*)data)==0;
-	    break;
-	case 4:
-	    res = *(cast(int*)data)==0;
-	    break;
-	case 8:
-	    res = *(cast(long*)data)==0;
-	    break;
-	case -4:
-	    res = *(cast(float*)data)==0;
-	    break;
-	case -8:
-	    res = *(cast(double*)data)==0;
-	    break;
+	case 1: res = *(data) == 0; break;
+	case 2: res = *(cast(short*)data) == 0; break;
+	case 4: res = *(cast(int*)data) == 0; break;
+	case 8: res = *(cast(long*)data) == 0; break;
+	case -4: res = *(cast(float*)data) == 0; break;
+	case -8: res = *(cast(double*)data) == 0; break;
 	default:
 	    res = true;
 	    foreach (i ; 0 .. abs(size)) {
@@ -48,7 +36,7 @@ class If : Instruction {
 	    frame.jump (this._where);
     }
 
-    string where () {
+    ulong where () {
 	return this._where;
     }
 

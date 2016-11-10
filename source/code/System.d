@@ -25,6 +25,8 @@ class System : Instruction {
 	    this._print!int ();
 	else if (this._name == "print_c")
 	    this._print!char ();
+	else if (this._name == "scan_i")
+	    this._scan!("d", int) ();
     }
 
     private void _print (T) () {
@@ -32,4 +34,9 @@ class System : Instruction {
 	    write (*(cast(T*)it.get()));
     }    
 
+    private void _scan (string format, T) () {
+	auto left = this._where.get ();
+	readf ("%" ~ format, (cast(T*)left));
+    }
+    
 }

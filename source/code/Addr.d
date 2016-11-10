@@ -1,6 +1,7 @@
 module code.Addr;
 import code.Expression, code.Instruction, code.Register;
 import code.Frame;
+import mem.Table;
 
 class Addr : Instruction {
 
@@ -12,7 +13,11 @@ class Addr : Instruction {
 	this._expr = expr;
     }
 
-    override void execute (Frame) {}
+    override void execute (Frame) {
+	auto right = this._expr.get ();
+	auto ptr = Table.instance.get (this._reg);
+	*(cast(byte**)right) = ptr;
+    }
 
     
 }

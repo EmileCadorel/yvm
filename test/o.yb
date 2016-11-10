@@ -1,17 +1,22 @@
 
-#print () : $(1:4) {
-lbl [l1]:
-	move	DW[123], 0($(1:4)):4 
-}
-
 #main() {
-lbl[l2] :
-	
-	move	DW[10], 0($(1:4)):4
-	minus	DW[10], 0($(1:4)):4, 0($(1:4)):4
-	system	print_i [0($(1:4)):4]
-	system	print_c [B[10]]
-	
-lbl[l3] :
+lbl[0] :
+	move DW[220], 0($(1:4)):4
+lbl[1]:
+	if	0($(1:4)):4 2	
+	goto	3
+
+lbl[2] :
+
+       addr	$(2:880), 0($(3:8)):8
+       move	0($(1:4)):4, 0(0($(3:8)):8):4
+       system	print_i [0(0($(3:8)):8):4]
+       system	print_c [B[45]]
+       minus	0($(1:4)):4, DW[1], 0($(1:4)):4
+       goto	1
+
+lbl [3]:
+    system	print_c [B[10]]
+
 }
 

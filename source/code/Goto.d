@@ -3,9 +3,9 @@ import code.Frame, code.Instruction;
 
 class Goto : Instruction {
 
-    private string _id;
+    private ulong _id;
 
-    this (string id) {
+    this (ulong id) {
 	this._id = id;
     }
 

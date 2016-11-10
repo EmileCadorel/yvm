@@ -2,14 +2,34 @@ module code.Operator;
 import code.Frame, code.Instruction, code.Expression;
 import std.stdio;
 
+enum OP {
+    PLUS,
+    MINUS,
+    STAR,
+    DIV,
+    INF,
+    NONE
+}
+
+OP toOP (string elem) {
+    if (elem == "plus") return OP.PLUS;
+    if (elem == "minus") return OP.MINUS;
+    if (elem == "star") return OP.STAR;
+    if (elem == "div") return OP.DIV;
+    if (elem == "inf") return OP.INF;
+    return OP.NONE;
+}
+
+
+
 class Operator : Instruction {
 
-    private string _type;
+    private OP _type;
     private Expression _left;
     private Expression _right;
     private Expression _res;
 
-    this (string type, Expression left, Expression right, Expression res) {
+    this (OP type, Expression left, Expression right, Expression res) {
 	this._type = type;
 	this._left = left;
 	this._right = right;
@@ -17,11 +37,14 @@ class Operator : Instruction {
     }
 
     override void execute (Frame frame) {
-	if (this._type == "plus") this._simple!"+" ();
-	else if (this._type == "minus") this._simple!"-" ();
-	else if (this._type == "star") this._simple!"*" ();
-	else if (this._type == "div") this._simple!"/" ();
-	else if (this._type == "inf") this._test!"<" ();
+	final switch (this._type) {
+	case OP.PLUS: this._simple!"+" (); break;
+	case OP.MINUS: this._simple!"-" (); break;
+	case OP.STAR: this._simple!"*" (); break;
+	case OP.DIV: this._simple!"/" (); break;
+	case OP.INF: this._test!"<" (); break;
+	case OP.NONE: break;
+	}
     }
 
 

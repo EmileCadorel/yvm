@@ -4,15 +4,15 @@ import std.container;
 
 class Label {
 
-    private string _id;
+    private ulong _id;
     private Array!Instruction _insts;
 
-    this (string id, Array!Instruction insts) {
+    this (ulong id, Array!Instruction insts) {
 	this._id = id;
 	this._insts = insts;
     }
 
-    string id () {
+    ulong id () {
 	return this._id;
     }
 
