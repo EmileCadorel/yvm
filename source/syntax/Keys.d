@@ -20,5 +20,6 @@ enum Keys : Token {
     SYSTEM = Token ("system", 14),
     INF = Token ("inf", 15),
     DIV = Token ("div", 16),
-    ADDR = Token ("addr", 17)
+    ADDR = Token ("addr", 17),
+    DEQUAL = Token ("dequal", 18)
 }

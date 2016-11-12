@@ -5,10 +5,11 @@ import utils.Singleton;
 
 class Table {
 
-    private SList!(byte*[ulong]) _reg;
+    private SList!(byte*[]) _reg;
 
     void enterFrame () {
-	this._reg.insertFront ((byte*[ulong]).init);
+	this._reg.insertFront ((byte*[]).init);
+	this._reg.front.length = 10;
     }
 
     void exitFrame () {
@@ -16,15 +17,13 @@ class Table {
     }
 
     void add (Register reg, byte* data) {
-	auto it = reg.id in this._reg.front;
-	if (it is null)
-	    this._reg.front[reg.id] = new byte[reg.size].ptr;
+	if (reg.id >= this._reg.front.length) this._reg.front.length += (reg.id + 1);
 	this._reg.front[reg.id] = data;
     }
 
     byte * get (Register reg) {
-	auto it = reg.id in this._reg.front;
-	if (it is null)
+	if (reg.id >= this._reg.front.length) this._reg.front.length += (reg.id + 1);
+	if (this._reg.front[reg.id] is null)
 	    this._reg.front[reg.id] = new byte[reg.size].ptr;
 	return this._reg.front[reg.id];
     }

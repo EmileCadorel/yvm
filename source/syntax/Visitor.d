@@ -16,7 +16,7 @@ class Visitor {
 					  Tokens.RRETOUR,
 					  Tokens.TAB],
 			       []);
-	this._operators = [Keys.STAR, Keys.PLUS, Keys.MINUS, Keys.DIV, Keys.INF];
+	this._operators = [Keys.STAR, Keys.PLUS, Keys.MINUS, Keys.DIV, Keys.INF, Keys.DEQUAL];
     }
 
     /**
@@ -193,12 +193,22 @@ class Visitor {
     /**
      move := 'move' expression ',' expression
      */
-    private Move visitMove () {
-	auto left = visitExpression ();
+    private _Move visitMove () {
 	auto word = this._lex.next ();
+	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
+	auto size = visitSize ();
+	auto left = visitExpression ();
+	word = this._lex.next ();
 	if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr]);
 	auto right = visitExpression ();
-	return new Move (left, right);
+	final switch (size) {
+	case Size.BYTE: return new Move!(Size.BYTE) (left, right);
+	case Size.WORD: return new Move!(Size.WORD) (left, right);
+	case Size.DWORD: return new Move!(Size.DWORD) (left, right);
+	case Size.QWORD: return new Move!(Size.QWORD) (left, right);
+	case Size.SPREC: return new Move!(Size.SPREC) (left, right);
+	case Size.DPREC: return new Move!(Size.DPREC) (left, right);
+	}
     }
 
     /**
@@ -228,17 +238,62 @@ class Visitor {
     /**
      operator := Identifiant expression ',' expression ',' expression
      */
-    private Operator visitOperator (Word type) {	
-	auto left = visitExpression ();
+    private Operator visitOperator (Word type) {
 	auto word = this._lex.next ();
+	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
+	auto size = visitSize ();	
+	auto left = visitExpression ();
+	word = this._lex.next ();
 	if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr]);
 	auto right = visitExpression ();
 	word = this._lex.next ();
 	if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr]);
 	auto res = visitExpression ();
-	return new Operator (toOP (type.str), left, right, res);
+	auto op = toOP (type.str);       
+	if (equals (op, OP.PLUS)) return createOp!(OP.PLUS) (size, left, right, res);
+	if (equals(op, OP.MINUS)) return createOp!(OP.MINUS) (size, left, right, res);
+	if (equals(op, OP.STAR)) return createOp!(OP.STAR) (size, left, right, res);
+	if (equals(op, OP.DIV)) return createOp!(OP.DIV) (size, left, right, res);
+	if (equals(op, OP.INF)) return createOp!(OP.INF) (size, left, right, res);
+	if (equals(op, OP.EQUAL)) return createOp!(OP.EQUAL) (size, left, right, res);
+	else throw new SyntaxError (word);
     }    
 
+    private Operator createOp (OP op)  (Size size, Expression left, Expression right, Expression res) {
+	if (isTest (op)) {
+	    final switch (size) {
+	    case Size.BYTE: return new OperatorTest!(Size.BYTE, op) (left, right, res);
+	    case Size.WORD: return new OperatorTest!(Size.WORD, op) (left, right, res);
+	    case Size.DWORD: return new OperatorTest!(Size.DWORD, op) (left, right, res);
+	    case Size.QWORD: return new OperatorTest!(Size.QWORD, op) (left, right, res);
+	    case Size.SPREC: return new OperatorTest!(Size.SPREC, op) (left, right, res);
+	    case Size.DPREC: return new OperatorTest!(Size.DPREC, op) (left, right, res);	       
+	    }
+	} else {
+	    final switch (size) {
+	    case Size.BYTE: return new OperatorSimple!(Size.BYTE, op) (left, right, res);
+	    case Size.WORD: return new OperatorSimple!(Size.WORD, op) (left, right, res);
+	    case Size.DWORD: return new OperatorSimple!(Size.DWORD, op) (left, right, res);
+	    case Size.QWORD: return new OperatorSimple!(Size.QWORD, op) (left, right, res);
+	    case Size.SPREC: return new OperatorSimple!(Size.SPREC, op) (left, right, res);
+	    case Size.DPREC: return new OperatorSimple!(Size.DPREC, op) (left, right, res);		
+	    }
+	}	
+    }
+    
+    private Size visitSize () {
+	auto elem = this._lex.next ();
+	switch (elem.str) {
+	case "b": return Size.BYTE;
+	case "w": return Size.WORD;
+	case "d": return Size.DWORD;
+	case "q": return Size.QWORD;
+	case "sp": return Size.SPREC;
+	case "dp": return Size.DPREC;
+	default: throw new SyntaxError (elem);
+	}
+    }
+    
     private string visitInt () {
 	string total;
 	auto word = this._lex.next ();

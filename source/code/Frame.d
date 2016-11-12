@@ -81,13 +81,12 @@ class Frame {
 
     void jump (ulong label_id) {
 	this._inst_ids.front = -1;
-	this._label_ids.front = label_id;
-	/**foreach (it; 0 .. this._labels.length) {
+	foreach (it; 0 .. this._labels.length) {
 	    if (this._labels[it].id == label_id) {
 		this._label_ids.front = it;
 		break;
 	    }
-	    }*/
+	}
     }
 
     Register returnReg () {

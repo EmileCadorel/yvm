@@ -25,6 +25,10 @@ class System : Instruction {
 	    this._print!int ();
 	else if (this._name == "print_c")
 	    this._print!char ();
+	else if (this._name == "print_f")
+	    this._print!float ();
+	else if (this._name == "print_l")
+	    this._print!long ();
 	else if (this._name == "scan_i")
 	    this._scan!("d", int) ();
     }

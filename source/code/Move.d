@@ -1,7 +1,8 @@
 module code.Move;
 import code.Frame, code.Expression, code.Instruction, std.math;
+import code.Size;
 
-class Move : Instruction {
+class _Move : Instruction {
 
     private Expression _left;
     private Expression _right;
@@ -10,32 +11,84 @@ class Move : Instruction {
 	this._left = left;
 	this._right = right;
     }
-
-    override void execute (Frame frame) {
-	auto left = this._left.get (), right = this._right.get ();
-	switch (this._left.size) {
-	case 1:
-	    *(right) = *left;
-	    break;
-	case 2:
-	    *(cast(short*)right) = *(cast(short*)left);
-	    break;
-	case 4:
-	    *(cast(int*)right) = *(cast(int*)left);
-	    break;
-	case 8:
-	    *(cast(long*)right) = *(cast(long*)left);
-	    break;
-	case -4:
-	    *(cast(float*)right) = *(cast(float*)left);
-	    break;
-	case -8:
-	    *(cast(double*)right) = *(cast(double*)left);
-	    break;
-	default:
-	    foreach (i ; 0 .. abs(this._left.size)) {
-		*(right + i) = *(left + i);
-	    }
-	}
-    }
 }
+
+class Move (Size size : Size.BYTE) : _Move {
+
+    this (Expression left, Expression right) {
+	super (left, right);
+    }
+
+    override void execute (Frame) {
+	auto left = this._left.get (), right = this._right.get ();
+	*right = *left;
+    }
+    
+};
+
+class Move (Size size : Size.WORD) : _Move {
+
+    this (Expression left, Expression right) {
+	super (left, right);
+    }
+
+    override void execute (Frame) {
+	auto left = this._left.get (), right = this._right.get ();
+	*(cast(short*)right) = *(cast(short*)left);
+    }    
+    
+};
+
+class Move (Size size : Size.DWORD) : _Move {
+
+    this (Expression left, Expression right) {
+	super (left, right);
+    }
+
+    override void execute (Frame) {
+	auto left = this._left.get (), right = this._right.get ();
+	*(cast(int*)right) = *(cast(int*)left);
+    }       
+};
+
+class Move (Size size : Size.QWORD) : _Move {
+
+    this (Expression left, Expression right) {
+	super (left, right);
+    }
+
+    override void execute (Frame) {
+	auto left = this._left.get (), right = this._right.get ();
+	*(cast(long*)right) = *(cast(long*)left);
+    }       
+};
+
+class Move (Size size : Size.SPREC) : _Move {
+
+    this (Expression left, Expression right) {
+	super (left, right);
+    }
+
+    override void execute (Frame) {
+	auto left = this._left.get (), right = this._right.get ();
+	*(cast(float*)right) = *(cast(float*)left);
+    }       
+};
+				      
+class Move (Size size : Size.DPREC) : _Move {
+
+    this (Expression left, Expression right) {
+	super (left, right);
+    }
+
+    override void execute (Frame) {
+	auto left = this._left.get (), right = this._right.get ();
+	*(cast(double*)right) = *(cast(double*)left);
+    }       
+}
+
+
+				      
+
+
+				     
