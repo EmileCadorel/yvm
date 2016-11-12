@@ -183,10 +183,20 @@ class Visitor {
     /**
      if := 'if' expression Identifiant
      */
-    private If visitIf () {
+    private _If visitIf () {
+	auto word = this._lex.next ();
+	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
+	auto size = visitSize ();
 	auto expr = visitExpression ();
 	auto lbl = to!ulong (visitInt());
-	return new If (expr, lbl);
+	final switch (size) {
+	case Size.BYTE: return new If!(Size.BYTE) (expr, lbl);
+	case Size.WORD: return new If!(Size.WORD) (expr, lbl);
+	case Size.DWORD: return new If!(Size.DWORD) (expr, lbl);
+	case Size.QWORD: return new If!(Size.QWORD) (expr, lbl);
+	case Size.SPREC: return new If!(Size.SPREC) (expr, lbl);
+	case Size.DPREC: return new If!(Size.DPREC) (expr, lbl);
+	}
     }    
     
     

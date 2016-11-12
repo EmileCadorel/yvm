@@ -5,11 +5,10 @@ import utils.Singleton;
 
 class Table {
 
-    private SList!(byte*[]) _reg;
+    private DList!(byte*[]) _reg;
 
     void enterFrame () {
 	this._reg.insertFront ((byte*[]).init);
-	this._reg.front.length = 10;
     }
 
     void exitFrame () {
