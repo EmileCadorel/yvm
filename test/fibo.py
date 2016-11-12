@@ -1,17 +1,7 @@
-
 def fibo (n):
-    a = 1
-    b = 1
-    i = 0
-    z = 0
-    while (z < 1000):
-	while (i < n - 2):
-	    c = a + b
-	    b = a
-	    a = c
-	    i = i + 1	
-	z += 1
+    if (n < 2) :
+        return n
+    else :
+        return fibo (n - 1) + fibo (n - 2)
 
-
-    
-fibo (49)
+print (fibo (25))

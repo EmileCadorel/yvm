@@ -47,7 +47,7 @@ class Frame {
 	return return_value;
     }
 
-    byte* call (Array!(byte*) params) {
+    byte* call (byte* [] params) {
 
 	this._label_ids.insertFront (0);
 	this._inst_ids.insertFront (0);

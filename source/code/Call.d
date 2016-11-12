@@ -22,9 +22,9 @@ class Call : Instruction {
     }
 
     override void execute (Frame) {
-	Array!(byte*) params;
-	foreach (it ; this._params) {
-	    params.insertBack (it.get ());
+	byte* [] params =  new byte*[this._params.length];
+	foreach (it ; 0 .. this._params.length) {
+	    params[it] = this._params[it].get ();
 	}
 
 	auto ret = FrameTable.instance.get (this._name).call (params);
