@@ -1,6 +1,6 @@
 module code.Move;
-import code.Frame, code.Expression, code.Instruction, std.math;
-import code.Size;
+import code.Expression, code.Instruction, std.math;
+import code.Size, std.stdio;
 
 class _Move : Instruction {
 
@@ -19,9 +19,8 @@ class Move (Size size : Size.BYTE) : _Move {
 	super (left, right);
     }
 
-    override void execute (Frame) {
-	auto left = this._left.get (), right = this._right.get ();
-	*right = *left;
+    override void execute () {
+	*this._right.b = *this._left.b;
     }
     
 };
@@ -32,10 +31,9 @@ class Move (Size size : Size.WORD) : _Move {
 	super (left, right);
     }
 
-    override void execute (Frame) {
-	auto left = this._left.get (), right = this._right.get ();
-	*(cast(short*)right) = *(cast(short*)left);
-    }    
+    override void execute () {
+	*this._right.w = *this._left.w;
+    }
     
 };
 
@@ -45,10 +43,9 @@ class Move (Size size : Size.DWORD) : _Move {
 	super (left, right);
     }
 
-    override void execute (Frame) {
-	auto left = this._left.get (), right = this._right.get ();
-	*(cast(int*)right) = *(cast(int*)left);
-    }       
+    override void execute () {
+	*this._right.d = *this._left.d;
+    }
 };
 
 class Move (Size size : Size.QWORD) : _Move {
@@ -57,10 +54,10 @@ class Move (Size size : Size.QWORD) : _Move {
 	super (left, right);
     }
 
-    override void execute (Frame) {
-	auto left = this._left.get (), right = this._right.get ();
-	*(cast(long*)right) = *(cast(long*)left);
-    }       
+    override void execute () {	
+	*this._right.q = *this._left.q;
+    }
+
 };
 
 class Move (Size size : Size.SPREC) : _Move {
@@ -69,10 +66,10 @@ class Move (Size size : Size.SPREC) : _Move {
 	super (left, right);
     }
 
-    override void execute (Frame) {
-	auto left = this._left.get (), right = this._right.get ();
-	*(cast(float*)right) = *(cast(float*)left);
-    }       
+    override void execute () {
+	*this._right.sp = *this._left.sp;
+    }
+
 };
 				      
 class Move (Size size : Size.DPREC) : _Move {
@@ -81,11 +78,11 @@ class Move (Size size : Size.DPREC) : _Move {
 	super (left, right);
     }
 
-    override void execute (Frame) {
-	auto left = this._left.get (), right = this._right.get ();
-	*(cast(double*)right) = *(cast(double*)left);
-    }       
+    override void execute () {
+	*this._right.dp = *this._left.dp;
+    }
 }
+				      
 
 
 				      

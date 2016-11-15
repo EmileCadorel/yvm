@@ -1,7 +1,6 @@
 module code.all;
 
 public import code.Expression;
-public import code.Frame;
 public import code.Goto;
 public import code.Instruction;
 public import code.Label;
@@ -15,3 +14,7 @@ public import code.Call;
 public import code.If;
 public import code.Addr;
 public import code.Size;
+public import code.EnterFrame;
+public import code.Ret;
+public import code.Program;
+public import code.Param;

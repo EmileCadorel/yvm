@@ -1,6 +1,12 @@
 module code.Expression;
 
 abstract class Expression {
-    abstract int size ();
-    abstract byte * get ();
+
+    byte * b () { assert (false); }
+    short * w () { assert (false); }
+    int * d () { assert (false); }
+    long * q () { assert (false); }
+    float * sp () { assert (false); }
+    double * dp () { assert (false); }
+    
 }

@@ -1,38 +1,44 @@
 module code.RegRead;
 import code.Register, code.Expression;
-import mem.Table;
+import std.stdio;
 
 /*
   On veut récupérer un pointeur (byte*)
  */
 class RegRead : Expression {
 
-    private ulong _begin;
-    private int _size;
+    private long _begin;
     private Expression _expr;
-    private Register _reg;
 
-    this (ulong begin, int size, Expression expr, Register reg) {
+    this (long begin, Expression expr) {
 	this._begin = begin;
-	this._size = size;
 	this._expr = expr;
-	this._reg = reg;
     }
 
-    override byte* get () {	
-	byte * ptr;
-
-	if (this._reg !is null) {
-	    ptr = Table.instance.get (this._reg);
-	} else {
-	    ptr = this._expr.get;
-	}
-		
-	return ptr + this._begin;
+    override byte * b () {
+	return (*(cast(byte**)this._expr.b) + this._begin);		
     }
 
-    override int size () {
-	return this._size;
+    override short * w () {
+	return cast(short*)(*(cast(byte**)this._expr.b) + this._begin);		
     }
 
+    override int * d () {
+	return cast(int*)(*(cast(byte**)this._expr.b) + this._begin);		
+    }
+
+    override long * q () {
+	return cast(long*)(*(cast(byte**)this._expr.b) + this._begin);
+    }
+
+    override float * sp () {
+	return cast(float*)(*(cast(byte**)this._expr.b) + this._begin);
+    }
+    
+    override double * dp () {
+	return cast(double*)(*(cast(byte**)this._expr.b) + this._begin);
+    }
+
+    
+    
 }

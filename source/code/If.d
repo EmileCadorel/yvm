@@ -1,18 +1,18 @@
 module code.If;
-import code.Instruction, code.Expression;
-import code.Frame, std.math, code.Size;
+import code.Instruction, code.Expression, code.Program;
+import std.math, code.Size;
 
 class _If : Instruction {
 
     private Expression _test;
-    private ulong _where;
+    private string _where;
 
-    this (Expression test, ulong where) {
+    this (Expression test, string where) {
 	this._where = where;
 	this._test = test;
     }
     
-    ulong where () {
+    string where () {
 	return this._where;
     }
 
@@ -23,75 +23,80 @@ class _If : Instruction {
 }
 
 class If (Size size : Size.BYTE) : _If {
-    this (Expression left, ulong where) {
+    this (Expression left, string where) {
 	super (left, where);
     }
 
-    override void execute (Frame fr) {
-	if (*(_test.get) != 0)
-	    fr.jump (this._where);
-    }    
+    override void execute () {
+	if (*this._test.b != 0)
+	    Program.instance.jump (this._where);
+    }
+    
 }
 				   
 class If (Size size : Size.WORD) : _If {
 
-    this (Expression left, ulong where) {
+    this (Expression left, string where) {
 	super (left, where);
     }
-    
-    override void execute (Frame fr) {
-	if (*(cast(short*)_test.get) != 0)
-	    fr.jump (this._where);
-    }    
+
+    override void execute () {
+	if (*this._test.w != 0)
+	    Program.instance.jump (this._where);
+    }
 };
 
 class If (Size size : Size.DWORD) : _If {
 
-    this (Expression left, ulong where) {
+    this (Expression left, string where) {
 	super (left, where);
     }
 
+    override void execute () {
+	if (*this._test.d != 0)
+	    Program.instance.jump (this._where);
+    }
     
-    override void execute (Frame fr) {
-	if (*(cast(int*)_test.get) != 0)
-	    fr.jump (this._where);
-    }    
 };
 				    
 class If (Size size : Size.QWORD) : _If {
 
-    this (Expression left, ulong where) {
+    this (Expression left, string where) {
 	super (left, where);
     }
+
+    override void execute () {
+	if (*this._test.q != 0)
+	    Program.instance.jump (this._where);
+    }
+
     
-    override void execute (Frame fr) {
-	if (*(cast(long*)_test.get) != 0)
-	    fr.jump (this._where);
-    }    
 };
 				    				    
 class If (Size size : Size.SPREC) : _If {
 
-    this (Expression left, ulong where) {
+    this (Expression left, string where) {
 	super (left, where);
     }
 
-    override void execute (Frame fr) {
-	if (*(cast(float*)_test.get) != 0)
-	    fr.jump (this._where);
-    }    
+    override void execute () {
+	if (*this._test.sp != 0)
+	    Program.instance.jump (this._where);
+    }
+    
 };
 
 class If (Size size : Size.DPREC) : _If {
 
-    this (Expression left, ulong where) {
+    this (Expression left, string where) {
 	super (left, where);
     }
-
-    override void execute (Frame fr) {
-	if (*(cast(double*)_test.get) != 0)
-	    fr.jump (this._where);
-    }    
+    
+    override void execute () {
+	if (*this._test.dp != 0)
+	    Program.instance.jump (this._where);
+    }
+    
 }
 
 

@@ -1,6 +1,8 @@
 module code.Instruction;
-import code.Frame;
 
 abstract class Instruction {
-    abstract void execute (Frame frame);
+    void execute () {
+	assert (false, this.toString());
+    }
 }
+

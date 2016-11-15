@@ -1,6 +1,5 @@
 module code.System;
 import code.Instruction, code.Expression;
-import code.Frame;
 import std.container, std.stdio;
 
 class System : Instruction {
@@ -20,7 +19,7 @@ class System : Instruction {
 	this._where = where;
     }
 
-    override void execute (Frame) {
+    override void execute () {
 	if (this._name == "print_i")
 	    this._print!int ();
 	else if (this._name == "print_c")
@@ -29,17 +28,29 @@ class System : Instruction {
 	    this._print!float ();
 	else if (this._name == "print_l")
 	    this._print!long ();
+	else if (this._name == "print_b")
+	    this._print!byte ();
 	else if (this._name == "scan_i")
 	    this._scan!("d", int) ();
     }
 
+    private void _print (T : byte) () {
+	foreach (it ; this._params) 
+	    write (*(cast(T*)it.b()));
+    }    
+    
+    private void _print (T : long) () {
+	foreach (it ; this._params) 
+	    write (*it.q());
+    }
+
     private void _print (T) () {
 	foreach (it ; this._params) 
-	    write (*(cast(T*)it.get()));
+	    write (*(cast(T*)it.b()));
     }    
 
     private void _scan (string format, T) () {
-	auto left = this._where.get ();
+	auto left = this._where.b ();
 	readf ("%" ~ format, (cast(T*)left));
     }
     

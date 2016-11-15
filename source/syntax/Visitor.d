@@ -3,7 +3,7 @@ import syntax.Lexer;
 import syntax.Word, syntax.Keys;
 import syntax.Tokens, syntax.SyntaxError;
 import std.container, std.algorithm;
-import code.all, std.conv, std.stdio;
+import code.all, std.conv, std.stdio, std.array;
 
 class Visitor {
 
@@ -22,69 +22,24 @@ class Visitor {
     /**
      program := frame*
      */
-    Frame [string] visit () {
-	Word word = this._lex.next ();
-	Frame [string] decls;
+    Label [] visit () {
+	Word word = this._lex.next();
+	Array!Label decls;
 	while (!word.isEof ()) {
-	    if (word == Tokens.SHARP) {
-		auto fr = this.visitFrame ();
-		decls [fr.name] = fr;
-	    } else throw new SyntaxError (word, [Tokens.SHARP.descr]);
-	    this._lex.next (word);
-	}
-	return decls;
-    }
-
-
-    /**
-     frame := '#' identifiant '(' reg* ')' (':' reg)? '{' label* '}'
-     */
-    private Frame visitFrame () {
-	auto name = visitIdentifiant ();
-	auto word = this._lex.next ();
-	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
-	word = this._lex.next ();
-	Array!Register regs;
-	if (word != Tokens.RPAR) {
-	    this._lex.rewind ();
-	    while (true) {
-		regs.insertBack (visitRegister ());
-		word = this._lex.next ();
-		if (word == Tokens.RPAR) break;
-		else if (word != Tokens.COMA) throw new SyntaxError (word,
-								     [Tokens.COMA.descr,
-								      Tokens.RPAR.descr]);		
-	    }
-	}
-	word = this._lex.next ();
-	Register returnReg;
-	if (word == Tokens.COLON) {
-	    returnReg = visitRegister ();
-	} else this._lex.rewind ();
-
-	word = this._lex.next ();
-	if (word != Tokens.LACC) throw new SyntaxError (word, [Tokens.LACC.descr]);
-	Array!Label labels;
-	while (true) {
-	    labels.insertBack (visitLabel ());
+	    if (word == Keys.LBL) decls.insertBack (visitLabel ());
+	    else if (!word.isEof ()) throw new SyntaxError (word);
 	    word = this._lex.next ();
-	    if (word == Tokens.RACC) break;
-	    else this._lex.rewind ();
 	}
-	
-	return new Frame (name.str, regs, labels, returnReg); 
-    }    
-
+	return decls.array;
+    }
 
     /**
      label := 'lbl' '[' Identifiant ']' ':' instruction*
      */
     private Label visitLabel () {
 	auto word = this._lex.next ();
-	if (word != Keys.LBL) throw new SyntaxError (word, [Keys.LBL.descr]);
-	word = this._lex.next ();
 	if (word != Tokens.LCRO) throw new SyntaxError (word, [Tokens.LCRO.descr]);
-	auto num = to!ulong (visitInt ());
+	auto id = visitIdentifiant ();
 	word = this._lex.next ();
 	if (word != Tokens.RCRO) throw new SyntaxError (word, [Tokens.RCRO.descr]);
 	word = this._lex.next ();
@@ -106,25 +61,60 @@ class Visitor {
 		insts.insertBack (visitIf ());
 	    else if (word == Keys.ADDR)
 		insts.insertBack (visitAddr ());
+	    else if (word == Keys.ENTERFRAME)
+		insts.insertBack (visitEnter);
+	    else if (word == Keys.RET)
+		insts.insertBack (visitRet ());
+	    else if (word == Keys.PARAM)
+		insts.insertBack (visitParam ());
 	    else {
 		this._lex.rewind ();
 		break;
 	    }
 	}
-	return new Label (num, insts);
+	return new Label (id.str, insts);
     }
-
+    
+    
+    /**
+     enter = 'enter_frame' int
+     */
+    private EnterFrame visitEnter () {
+	return new EnterFrame ();
+    }
+    
     /**
      addr := 'addr' register ',' expression
      */
     private Addr visitAddr () {
-	auto reg = visitRegister ();
+	auto reg = visitExpression ();
 	auto word = this._lex.next ();
 	if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr]);
 	auto expr = visitExpression ();
 	return new Addr (reg, expr);
     }
 
+    /**
+     ret := 'ret'':' size expression
+     */
+    private _Ret visitRet () {
+	auto word = this._lex.next ();
+	if (word != Tokens.COLON) {
+	    this._lex.rewind ();
+	    return new Ret !() ();
+	}
+	auto size = visitSize ();
+	auto expr = visitExpression ();
+	final switch (size) {
+	case Size.BYTE: return new Ret!(Size.BYTE) (expr);
+	case Size.WORD: return new Ret!(Size.WORD) (expr);
+	case Size.DWORD: return new Ret!(Size.DWORD) (expr);
+	case Size.QWORD: return new Ret!(Size.QWORD) (expr);
+	case Size.SPREC: return new Ret!(Size.SPREC) (expr);
+	case Size.DPREC: return new Ret!(Size.DPREC) (expr);
+	}
+    }
+    
     
     /**
      system := 'system' Identifiant '[' (expression (',' expression)*) ? ']'
@@ -143,7 +133,7 @@ class Visitor {
 		if (word == Tokens.RCRO) break;
 		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.RCRO.descr, Tokens.COMA.descr]);
 	    }
-	}
+	} 
 	word = this._lex.next ();
 	if (word == Tokens.COMA) {
 	    auto reg = visitExpression ();
@@ -158,28 +148,28 @@ class Visitor {
      */
     private Call visitCall () {
 	auto name = visitIdentifiant ();
-	auto word = this._lex.next ();
-	if (word != Tokens.LCRO) throw new SyntaxError (word, [Tokens.LCRO.descr]);
-	word = this._lex.next ();
-	Array!Expression expr;
-	if (word != Tokens.RCRO) {
-	    this._lex.rewind ();
-	    while (true) {
-		expr.insertBack (visitExpression ());
-		word = this._lex.next ();
-		if (word == Tokens.RCRO) break;
-		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.RCRO.descr, Tokens.COMA.descr]);
-	    }
-	}
-	word = this._lex.next ();
-	if (word == Tokens.COMA) {
-	    auto reg = visitExpression ();
-	    return new Call (name.str, expr, reg);
-	} else this._lex.rewind ();
-	
-	return new Call (name.str, expr);
+	return new Call (name.str);
     }
 
+    /**
+     param := 'param'':' size expression
+     */
+    private _Param visitParam () {
+	auto word = this._lex.next ();
+	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
+	auto size = visitSize ();
+	auto expr = visitExpression ();
+	final switch (size) {
+	case Size.BYTE: return new Param!(Size.BYTE) (expr);
+	case Size.WORD: return new Param!(Size.WORD) (expr);
+	case Size.DWORD: return new Param!(Size.DWORD) (expr);
+	case Size.QWORD: return new Param!(Size.QWORD) (expr);
+	case Size.SPREC: return new Param!(Size.SPREC) (expr);
+	case Size.DPREC: return new Param!(Size.DPREC) (expr);
+	}
+    }
+
+    
     /**
      if := 'if' expression Identifiant
      */
@@ -188,17 +178,18 @@ class Visitor {
 	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
 	auto size = visitSize ();
 	auto expr = visitExpression ();
-	auto lbl = to!ulong (visitInt());
+	word = this._lex.next ();
+	if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr]);
+	auto lbl = visitIdentifiant ();
 	final switch (size) {
-	case Size.BYTE: return new If!(Size.BYTE) (expr, lbl);
-	case Size.WORD: return new If!(Size.WORD) (expr, lbl);
-	case Size.DWORD: return new If!(Size.DWORD) (expr, lbl);
-	case Size.QWORD: return new If!(Size.QWORD) (expr, lbl);
-	case Size.SPREC: return new If!(Size.SPREC) (expr, lbl);
-	case Size.DPREC: return new If!(Size.DPREC) (expr, lbl);
+	case Size.BYTE: return new If!(Size.BYTE) (expr, lbl.str);
+	case Size.WORD: return new If!(Size.WORD) (expr, lbl.str);
+	case Size.DWORD: return new If!(Size.DWORD) (expr, lbl.str);
+	case Size.QWORD: return new If!(Size.QWORD) (expr, lbl.str);
+	case Size.SPREC: return new If!(Size.SPREC) (expr, lbl.str);
+	case Size.DPREC: return new If!(Size.DPREC) (expr, lbl.str);
 	}
-    }    
-    
+    }        
     
     /**
      move := 'move' expression ',' expression
@@ -225,24 +216,17 @@ class Visitor {
      goto := 'goto' Identifiant
      */
     private Goto visitGoto () {
-	return new Goto (to!ulong (visitInt ()));
+	return new Goto (visitIdentifiant.str);
     }
 
     /**
-     reg := '$''(' int ':' int ')'
+     reg := '$' int | '$sp' | '$fp'
      */
-    private Register visitRegister () {
-	auto word = this._lex.next ();
-	if (word != Tokens.DOLLAR) throw new SyntaxError (word, [Tokens.DOLLAR.descr]);
-	word = this._lex.next ();
-	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
-	auto id = visitInt ();
-	word = this._lex.next ();
-	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
-	auto size = visitInt ();
-	word = this._lex.next ();
-	if (word != Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
-	return new Register (to!ulong (id), to!int (size));
+    private Expression visitRegister () {
+	auto id = to!ulong (visitInt ());
+	if (id < 8)
+	    return new Register (id);
+	else return new RegisterSlow (id);
     }
 
     /**
@@ -373,7 +357,8 @@ class Visitor {
 	if (getInt (_int)) return visitRegRead (_int);
 	else {
 	    auto word = this._lex.next ();
-	    if (word == Keys.DW) return visitDWord ();
+	    if (word == Tokens.DOLLAR) return visitRegister ();
+	    else if (word == Keys.DW) return visitDWord ();
 	    else if (word == Keys.W) return visitWord ();
 	    else if (word == Keys.QW) return visitQWord ();
 	    else if (word == Keys.B) return visitByte ();
@@ -447,23 +432,10 @@ class Visitor {
     private RegRead visitRegRead (string begin) {
 	auto word = this._lex.next ();
 	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
-	word = this._lex.next ();
-
-	Register reg; Expression expr;
-	if (word == Tokens.DOLLAR) {
-	    this._lex.rewind ();
-	    reg = visitRegister ();
-	} else {
-	    this._lex.rewind ();
-	    expr = visitExpression ();
-	}
-	
+	auto expr = visitExpression ();
 	word = this._lex.next ();
 	if (word != Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
-	word = this._lex.next ();
-	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
-	auto end = visitInt ();
-	return new RegRead (to!ulong (begin), to!int(end), expr, reg);
+	return new RegRead (to!long (begin), expr);
     }
     
     /**

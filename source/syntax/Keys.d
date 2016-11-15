@@ -21,5 +21,11 @@ enum Keys : Token {
     INF = Token ("inf", 15),
     DIV = Token ("div", 16),
     ADDR = Token ("addr", 17),
-    DEQUAL = Token ("dequal", 18)
+    DEQUAL = Token ("dequal", 18),
+    RSP = Token ("sp", 19),
+    RFP = Token ("fp", 20),
+    ENTERFRAME = Token ("enter_frame", 21),
+    RET = Token ("ret", 22),
+    PUSH = Token ("push", 23),
+    PARAM = Token ("param", 24)
 }
